@@ -7,7 +7,7 @@
         FROM table_name
         [WHERE search_condition]
         [GROUP BY group_by_expression]
-        [HAVING search_condition]
+        [HAVING search_condition] --- 독립적으로 사용 불가, group by  와 함께 
         [ORDER BY order_expression [ASC|DESC]];
         
         SELECT 컬럼리스트 4. 컬럼 지정 (보고 싶은 컬럼만 가져오기) > Projection
@@ -163,3 +163,155 @@ group by case
 end;  --   복잡해보여도 어쩔수없음 group by가 먼저 실행되므로 as 사용 불가
 
 -- tblInsa. 과장+부장 몇명? 사원+대리 몇명? 
+
+select 
+    case
+    when jikwi in ('과장', '부장') then 1
+    when jikwi in ('대리', '사원') then 2
+    end,
+    count(*)
+from tblInsa group by case
+    when jikwi in ('과장', '부장') then 1
+    when jikwi in ('대리', '사원') then 2
+end;
+
+/*
+
+        SELECT 컬럼리스트 5. 컬럼 지정 (보고 싶은 컬럼만 가져오기) > Projection
+        FROM 테이블     1.  테이블 지정
+        WHERE 검색조건;  2. 조건 지정 (보고 싶은 행만 가져오기) > 레코드에 대한 조건
+        GROUP BY 그룹기준 3. (레코드끼리) 그룹을 나눈다
+        HAVING 조건       4. 그룹에 대한 조건(그룹에 대한 where절)
+        ORDER BY 정렬기준; 6. 정렬해서 
+        
+        having 절
+        - 그룹에 대한 조건
+        - having을 만족하는 그룹만 결과셋 남는다
+
+
+*/
+
+select
+    count(*)
+from tblInsa
+    where basicpay >= 1500000;
+    
+-- 전직원 중 급여가 150만 원 이상 사람들을 부서별로 그룹지어 인원수를 가져오시오 (개인 - where 조건)
+select                              -- 4. 각 그룹별 > 집계함수 실행
+    buseo, count(*), round(avg(basicpay))
+from tblInsa                        -- 1. 60명의 데이터를 가져온다. 
+    where basicpay >= 1500000       -- 2. 60명을 대상으로 조건을 검사한다.
+    group by buseo;                 -- 3. 2번을 통과한 사람들을 대상으로 그룹을 짓는다
+    
+-- 전직원을 부서별로 그룹짓고 그룹별 평균 급여가 150만원 이상인 그룹의 인원수? (집합 - having 조건)
+select                                  -- 4. 각 그룹별 > 집계 함수를 실행한다.
+buseo,
+count(*),
+round(avg(basicpay))
+from tblInsa                            -- 1. 60명의 데이터를 가져온다.
+group by buseo                          -- 2. 60명을 대상으로 그룹을 짓는다.
+    having avg(basicpay) >= 1500000;    -- 3. 그룹을 대상으로 조건을 검사한다.
+
+    
+-- 부서내(group by) 과장/부장(where)의 인원수가 3명 이상(having)인 부서들? > 명퇴자
+select
+buseo, count(*)
+from tblInsa 
+where jikwi in ('과장', '부장')
+group by buseo
+having count(*) >= 3;
+
+
+
+
+
+/*
+grou by 전용 함수
+    rollup()
+    - group by의 집계결과를 좀 더 자세하게 반환
+    - 그룹별 중간 통계
+
+
+
+*/
+
+select
+buseo,
+count(*),
+sum(basicpay),
+round(avg(basicpay)),
+max(basicpay),
+min(basicpay)
+from tblInsa
+    group by rollup(buseo); -- 1차그룹 
+    
+    
+    select
+buseo,
+jikwi,
+count(*),
+sum(basicpay),
+round(avg(basicpay)),
+max(basicpay),
+min(basicpay)
+from tblInsa
+    group by rollup(buseo, jikwi); -- 2차
+    
+    select
+buseo,
+jikwi,
+city,
+count(*),
+sum(basicpay),
+round(avg(basicpay)),
+max(basicpay),
+min(basicpay)
+from tblInsa
+    group by rollup(buseo, jikwi, city); -- 3차
+
+
+
+/*
+grou by 전용 함수
+    cube()
+    - group by의 집계결과를 좀 더 자세하게 반환
+    - 그룹별 중간 통계
+    
+
+*/
+
+
+select
+buseo,
+count(*),
+sum(basicpay),
+round(avg(basicpay)),
+max(basicpay),
+min(basicpay)
+from tblInsa
+    group by cube(buseo); -- 1차그룹일 때 rollup과 차이 X
+    
+    
+    select
+buseo,
+jikwi,
+count(*),
+sum(basicpay),
+round(avg(basicpay)),
+max(basicpay),
+min(basicpay)
+from tblInsa
+    group by cube(buseo, jikwi); -- 다각도에서 
+    
+    select
+buseo,
+jikwi,
+city,
+count(*),
+sum(basicpay),
+round(avg(basicpay)),
+max(basicpay),
+min(basicpay)
+from tblInsa
+    group by cube(buseo, jikwi, city);
+
