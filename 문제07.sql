@@ -33,13 +33,14 @@
 
 -- 4. tblAddressBook. 이메일 도메인들 중 평균 아이디 길이가 가장 긴 이메일 사이트의 도메인은 무엇인가?
 
-    select * from tblAddressBook where email like
-    str ?
-    
+    select regexp_substr(email, '@([^\.]+)\',  1, 1, NULL, 1) as 도메인 from tblAddressBook 
+    where email = (select max(avg(length(regexp_substr(email, '^[^@]+')))) from tblAddressBook group by email);    
 
 
 -- 5. tblAddressBook. 평균 나이가 가장 많은 출신(hometown)들이 가지고 있는 직업 중 가장 많은 직업은?
 
+
+    select job from tblAddressBook where hometown = (select max(avg(age)) from tblAddressBook group by hometown order by avg(age) desc);
 
 -- 6. tblAddressBook. 남자 평균 나이보다 나이가 많은 서울 태생 + 직업을 가지고 있는 사람들을 가져오시오.
 
@@ -48,6 +49,11 @@
 
 
 -- 8. tblAddressBook. 가장 나이가 많으면서 가장 몸무게가 많이 나가는 사람과 같은 직업을 가지는 사람들을 가져오시오.
+select * from tblAddressBook where job = (select job from tblAddressBook where age = (select max(age) from tblAddressBook) and
+weight = (select max(weight) from tblAddressBook));
+
+
+select * from tblAddressBook;
 
 
 -- 9. tblAddressBook.  동명이인이 여러명 있습니다. 이 중 가장 인원수가 많은 동명이인의 명단을 가져오시오.(모든 이도윤)
