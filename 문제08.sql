@@ -224,18 +224,79 @@
         -- 각각의 컬럼명을 '사원번호', '사원이름', '관리자번호', '관리자이름'
         select * from employees; -- employee_id, first_name, last_name, manager_id, manager_id(가 있는..사원이름)
         
+        select e2.employee_id as 사원번호, e2.first_name || e2.last_name as 사원이름,
+        e1.manager_id as 관리자번호, e1.first_name || e1.last_name as 관리자이름 
+        from employees e1 -- 부모테이블 > 상사
+        inner join employees e2 -- 자식 테이블 > 직원
+        on e1.employee_id = e2.manager_id;
         
 -- 22. employees, jobs. 직책(Job Title)이 Sales Manager인 사원들의 입사년도와 입사년도(hire_date)별 평균 급여를 가져오시오. 년도를 기준으로 오름차순 정렬.
 
+        select * from employees;
+        select * from jobs;
+        
+        select e.hire_date, avg(salary) from (employees e
+            inner join jobs j
+                on e.job_id = j.job_id)
+                where j.job_title = 'Sales Manager'
+                group by e.hire_date
+                order by e.hire_date desc;
 
--- 23. employees, departments. locations. 각 도시(city)에 있는 모든 부서 사원들의 평균급여가 가장 낮은 도시부터 도시명(city)과 평균연봉, 해당 도시의 사원수를 가져오시오. 단, 도시에 근 무하는 사원이 10명 이상인 곳은 제외하고 가져오시오.
+
+-- 23. employees, departments. locations. 각 도시(city)에 있는 모든 부서 사원들의 평균급여가 가장 낮은 도시부터 도시명(city)과 평균연봉, 해당 도시의 사원수를 가져오시오. 
+-- 단, 도시에 근무하는 사원이 10명 이상인 곳은 제외하고 가져오시오.
+
+        select * from employees;
+        select * from departments; -- department_id, location_id
+        select * from locations; -- city, location_id
             
+
+with a as (
+select l.city, 
+count(e.employee_id) as 사원수, 
+avg(e.salary) as 평균임금 
+from employees e
+    inner join departments d on e.department_id = d.department_id
+    inner join locations l on d.location_id = l.location_id
+    group by l.city having count(e.employee_id) < 10) -- 사원이 10명 미만인 도시만 선택
+    select city, 평균임금, 사원수 from a order by 평균임금;
+        
             
--- 24. employees, jobs, job_history. ‘Public  Accountant’의 직책(job_title)으로 과거에 근무한 적이 있는 모든 사원의 사번과 이름을 가져오시오. 현재 ‘Public Accountant’의 직책(job_title)으로 근무하는 사원은 고려 하지 말것.
+-- 24. employees, jobs, job_history. ‘Public  Accountant’의 직책(job_title)으로 과거에 근무한 적이 있는 모든 사원의 사번과 이름을 가져오시오. 
+-- 현재 ‘Public Accountant’의 직책(job_title)으로 근무하는 사원은 고려 하지 말것. -- job_id :  ac_account
+    select * from employees;
+    select * from jobs; -- job_id
+    select * from job_history; -- job_id, employee_id 
     
     
+    select distinct e.employee_id, e.first_name || e.last_name from (employees e
+        inner join jobs j
+            on e.job_id = j.job_id
+                inner join job_history h
+                    on j.job_id = h.job_id)
+                    where h.job_id = (select job_id from jobs where job_title = 'Public Accountant');
+        
+    
+
 -- 25. employees, departments, locations. 커미션을 받는 모든 사람들의 first_name, last_name, 부서명, 지역 id, 도시명을 가져오시오.
-    
+        select * from employees; -- commission_pct
+        select * from departments; -- department_id, location_id
+        select * from locations; -- city, location_id
+        
+        select e.first_name, e.last_name, d.department_name, l.location_id, l.city from (employees e
+            inner join departments d
+                on e.department_id = d.department_id
+            inner join locations l
+                on d.location_id = l.location_id)
+                where e.commission_pct is not null;
+        
     
 -- 26. employees. 자신의 매니저보다 먼저 고용된 사원들의 first_name, last_name, 고용일을 가져오시오.
 
+-- 셀프조인
+select * from employees; 
+
+        select e2.first_name, e2.last_name, e2.hire_date from employees e1
+            inner join employees e2
+                on e1.employee_id = e2.manager_id
+                where e2.hire_date < e1.hire_date;
