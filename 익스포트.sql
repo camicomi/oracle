@@ -1,0 +1,44 @@
+--------------------------------------------------------
+--  파일이 생성됨 - 화요일-2월-20-2024   
+--------------------------------------------------------
+--------------------------------------------------------
+--  DDL for Table TBLEDIT
+--------------------------------------------------------
+
+  CREATE TABLE "HR"."TBLEDIT" 
+   (	"SEQ" NUMBER, 
+	"DATA" VARCHAR2(20 BYTE), 
+	"PRICE" NUMBER
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into HR.TBLEDIT
+SET DEFINE OFF;
+Insert into HR.TBLEDIT (SEQ,DATA,PRICE) values (1,'마우스',null);
+Insert into HR.TBLEDIT (SEQ,DATA,PRICE) values (2,'키보드',null);
+Insert into HR.TBLEDIT (SEQ,DATA,PRICE) values (3,'모니터',null);
+--------------------------------------------------------
+--  DDL for Index SYS_C008554
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "HR"."SYS_C008554" ON "HR"."TBLEDIT" ("SEQ") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table TBLEDIT
+--------------------------------------------------------
+
+  ALTER TABLE "HR"."TBLEDIT" MODIFY ("DATA" NOT NULL ENABLE);
+  ALTER TABLE "HR"."TBLEDIT" ADD PRIMARY KEY ("SEQ")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE;
