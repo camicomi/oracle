@@ -118,3 +118,59 @@ from tblSelf
         -- 트랜잭션 > ANSI-SQL
         -- Modeling (설계)
         -- PL/SQL
+        
+        
+        
+        
+        
+        
+-- 카테고리
+create table tblCategoryBig (
+    seq number primary key,                -- 식별자(PK)
+    name varchar2(100) not null            -- 카테고리명
+);
+
+
+create table tblCategoryMedium (
+    seq number primary key,                -- 식별자(PK)
+    name varchar2(100) not null,           -- 카테고리명
+    pseq number not null references tblCategoryBig(seq) -- 부모카테고리(FK)
+);
+
+create table tblCategorySmall (
+    seq number primary key,                -- 식별자(PK)
+    name varchar2(100) not null,           -- 카테고리명
+    pseq number not null references tblCategoryMedium(seq) -- 부모카테고리(FK)
+);
+
+
+insert into tblCategoryBig values (1, '카테고리');
+
+insert into tblCategoryMedium values (1, '컴퓨터용품', 1);
+insert into tblCategoryMedium values (2, '운동용품', 1);
+insert into tblCategoryMedium values (3, '먹거리', 1);
+
+insert into tblCategorySmall values (1, '하드웨어', 1);
+insert into tblCategorySmall values (2, '소프트웨어', 1);
+insert into tblCategorySmall values (3, '소모품', 1);
+
+insert into tblCategorySmall values (4, '테니스', 2);
+insert into tblCategorySmall values (5, '골프', 2);
+insert into tblCategorySmall values (6, '달리기', 2);
+
+insert into tblCategorySmall values (7, '밀키트', 3);
+insert into tblCategorySmall values (8, '베이커리', 3);
+insert into tblCategorySmall values (9, '도시락', 3);
+
+
+-- 모든 자식을 갖고 있으면, inner == outer join 값이 동일하다
+
+select
+b.name as 상,
+m.name as 중,
+s.name as 하
+from tblCategoryBig b
+    inner join tblCategoryMedium m
+        on b.seq = m.pseq
+            inner join tblCategorySmall s
+                on m.seq = s.pseq;
