@@ -686,3 +686,1025 @@ begin
 
 end;
 /
+
+------------0222
+
+/*
+
+    사용빈도 높음
+    
+    select > 결과셋 > PL/SQL 변수 대입
+    
+    1. select into
+        - 결과셋의 레코드가 1개일 때만 사용이 가능하다
+        예) select continent into vcontinent from tblCountry where name = '대한민국';
+        
+    
+    2. cursor
+        - 결과셋의 레코드가 N개일 때만 사용이 가능하다.
+        - 반드시 루프 함께 사용 (필수, 커서 탐색 용도) 
+        
+        
+    declare
+         변수 선언;
+         커서 선언; --  결과셋 참조 객체
+    begin
+        커서 열기;
+            loop
+                데이터 접근(루프 1회전 > 레코드 1개 접근) <- 커서 사용
+            end loop;
+        커서 닫기; 
+    end;
+
+다음번에 데이터가 있는지 없는지 확인하고, 데이터를 가져옴
+대부분의 커서는 전진만 하고, 후진은 못함
+다시 보고 싶으면 커서 를 다시 생성해서 봐야 한다. 
+자바: 
+while (iter.hasNext()) {
+iter.next()
+)
+
+*/
+set serveroutput on;
+
+declare
+    vname tblInsa.name%type;
+--    vname varchar2(30); --null 허용
+    vcnt number;
+begin
+
+    select count(*) into vcnt from tblInsa where num = 1001;
+
+    if vcnt > 0 then
+-- ORA-01403: 데이터를 찾을 수 없습니다.
+    select name into vname from tblInsa; -- where num = 1001; ORA-01422: 실제 인출은 요구된 것보다 많은 수의 행을 추출합니다
+    dbms_output.put_line(vname);
+    else
+    dbms_output.put_line('없음');
+    end if;
+    
+end;
+/
+
+/*
+create view vwTest
+as 
+select문; 
+
+cursor vcursor
+is select문;
+*/
+
+declare
+    -- cursor 커서명 is select문;
+    cursor vcursor is select name from tblInsa; -- 정의 O, 실행X
+    
+    vname tblInsa.name%type;
+begin
+    open vcursor; -- 커서 열기 > select 실행 > 결과셋을 커서가 참조
+    
+        -- 커서 == 컬럼이라고 생각
+        -- fetch 커서 into 변수 = select 컬럼 into 변수
+       -- fetch vcursor into vname; -- 커서 한칸 전진, 첫번째 사람..  
+       --  dbms_output.put_line(vname);
+        
+       --  fetch vcursor into vname; -- 커서 한칸 더 전진 , 두번째 사람..
+       --  dbms_output.put_line(vname);
+       
+       
+       loop
+        fetch vcursor into vname;
+        exit when vcursor%notfound;
+        dbms_output.put_line(vname);
+  
+  
+--       탈출       
+--        if vcursor%notfound then -- boolean 값
+--            dbms_output.put_line('O');
+--        else
+--            dbms_output.put_line('X');
+--        end if;
+        
+        end loop;
+        
+    close vcursor; -- 커서 닫기
+end;
+/
+
+-- '기획부' > 이름, 직위, 급여 >  출력
+declare
+
+    cursor vcursor
+    is
+    select name, jikwi, basicpay from tblInsa where buseo = '기획부';
+    
+    vname tblInsa.name%type;
+    vjikwi tblInsa.jikwi%type;
+    vbasicpay tblInsa.basicpay%type;
+
+begin
+
+    open vcursor;
+    loop
+    -- select name, jikwi, basicpay into vname, vjikwi, vbasicpay
+    fetch vcursor into vname, vjikwi, vbasicpay;
+    exit when vcursor%notfound; -- 없을때까지
+    
+    -- 업무 > 기획부 직원 한명씩 접근
+    dbms_output.put_line(vname || ',' || vjikwi || ',' || vbasicpay);
+    
+    end loop;
+    close vcursor;
+
+end;
+/
+
+
+-- 문제. tblBonus
+-- 모든 직원에게 보너스 지급
+-- 60명 전원
+-- 과장/부장 > 1.5배
+-- 사원/대리 > 2배
+
+declare
+
+   cursor vcursor
+    is
+    select num, basicpay, jikwi from tblInsa; -- 60명 전원
+     
+    vnum tblInsa.num%type;
+    vjikwi tblInsa.jikwi%type;
+    vbasicpay tblInsa.basicpay%type;
+    vbonus number; 
+    
+begin
+
+   open vcursor;
+    loop
+    
+    fetch vcursor into vnum, vbasicpay, vjikwi;
+    exit when vcursor%notfound;
+    
+    if vjikwi in('과장','부장') then
+        vbonus := vbasicpay * 1.5;
+    elsif vjikwi in('사원','대리') then
+        vbonus := vbasicpay * 2;
+        end if;
+        
+    insert into tblBonus (seq, num, bonus)
+    values ((select nvl(max(seq), 0) + 1 from tblBonus), vnum, vbonus);
+    
+    
+    end loop;
+    close vcursor;
+
+end;
+/
+
+select * from tblBonus;
+
+
+
+-- 커서 탐색
+-- 1. 커서 + loop > 기본 
+-- 2. 커서 + for loop > 간단
+
+-- 60명 직원 정보 전부 출력
+declare
+    cursor vcursor is select * from tblInsa;
+    --vrow tblInsa%rowtype;    
+begin
+    --open vcursor;
+    for vrow in vcursor loop        
+        --fetch vcursor into vrow;
+        --exit when vcursor%notfound;
+        dbms_output.put_line(vrow.name || ',' || vrow.buseo);
+    end loop;    
+    --close vcursor;
+end;
+/
+
+
+declare
+    cursor vcursor is select * from tblInsa;   
+begin
+    for vrow in vcursor loop        
+        dbms_output.put_line(vrow.name || ',' || vrow.buseo);
+    end loop;    
+end;
+/
+
+select * from tblInsa;
+
+
+
+
+
+
+-----------------------------------
+-- 예외처리
+-- : 실행부에서(begin~end) 발생하는 예외를 처리하는 블럭 > exception 블럭
+-- : 자바의 catch절 역할과 동일
+
+
+
+
+declare
+    vname tblInsa.name%type;
+begin
+-- ORA-01403: 데이터를 찾을 수 없습니다. "no data found"
+    dbms_output.put_line('111');
+    select name into vname from tblInsa where num = 1000;
+    dbms_output.put_line('222');
+    dbms_output.put_line(vname);
+    dbms_output.put_line('333');
+
+exception
+    when others then
+        dbms_output.put_line('예외 처리');
+
+end;
+/
+
+-- https://docs.oracle.com/cd/E11882_01/timesten.112/e21639/exceptions.htm#TTPLS196 북마크
+
+-- 예외 발생 > 기록(log)
+create table tblLog (
+    seq number primary key,             -- PK
+    code varchar2(7) not null,          -- 상태코드
+    message varchar2(1000) not null,    -- 예외 메시지
+    regdate date default sysdate not null   -- 발생시각
+);
+
+create sequence seqLog;
+
+
+declare
+    vcnt number;
+    vname varchar2(15);
+begin
+
+    select count(*) into vcnt from tblCountry; --  where name = '러시아';
+    dbms_output.put_line(100 / vcnt);
+    
+    select name into vname from tblInsa where num = 1000;
+    dbms_output.put_line(vname);
+    
+exception
+
+--    when 예외종류 then
+--        예외처리코드; x N  하나 실행되면, 나머지는 실행되지 않고 빠져나간다 다중  Catch 문처럼
+
+   when ZERO_DIVIDE then
+    dbms_output.put_line('0으로 나누기');
+    insert into tblLog values (seqLog.nextVal, 'A001', '가져온 레코드가 없습니다.', default);
+ 
+   
+    when NO_DATA_FOUND then
+    dbms_output.put_line('데이터 없음');
+    insert into tblLog values (seqLog.nextVal, 'B003', '직원이 존재하지 않습니다.', default);
+    
+    when others then  -- 기타등등
+    dbms_output.put_line('나머지 예외');
+    insert into tblLog values (seqLog.nextVal, 'Z009', '기타 에외가 발생했습니다.', default); 
+    
+end;
+/
+
+select * from tblLog; -- 프로젝트 수행시 log 필수
+
+-------------------------------------------------------------익명 프로시저
+
+
+-------------------------------------------------------------실명 프로시저
+
+
+
+/*
+
+    프로시저
+    1. 익명 프로시저
+        - 1회용
+    
+    2. 실명 프로시저
+        - 저장 > 재사용
+
+    실명 프로시저
+    - 저장 프로시저(Stored Procedure)
+    
+    1. 저장 프로시저, Stored Procedure
+        - 매개변수 / 반환값 존재  > 구성 자유 
+        
+    2. 저장 함수, Stored Function
+        - 매개변수 / 반환값 > 필수 
+        
+    
+    익명 프로시저 선언
+    [declare
+        변수 선언;
+        커서 선언;]
+    begin
+        구현부;
+    [exception
+        예외처리;]
+    end;
+    
+    
+    저장 프로시저 선언
+    
+    create [or replace] procedure 프로시저명
+    is(as) -- 생략 불가
+    [   변수 선언;
+        커서 선언;]
+    begin
+        구현부;
+    [exception
+        예외처리;]
+    end;
+    
+*/ 
+
+
+-- 즉시 실행
+declare
+    vnum number;
+begin
+    vnum := 100;
+    dbms_output.put_line(vnum);
+end;
+/
+
+
+-- 저장 프로시저 (메서드!!! 호출 따로 해야됨)
+create or replace procedure procTest
+is
+    vnum number;
+begin
+    vnum := 100;
+    dbms_output.put_line(vnum);
+end;
+/
+
+
+-- 프로시저 호출
+procTest; -- ANSI-SQL 공간이므로 그냥 부를수  X
+
+begin
+    procTest;
+end;
+/
+
+-- 자바 연동시..
+execute procTest;
+exec procTest;
+call procTest();
+
+
+-- 메서드 > 매개변수 + 반환값
+
+-- 1. 매개변수가 있는 프로시저 
+create or replace procedure procTest(pnum number) -- 매개변수
+is
+    vnum number; -- 일반변수
+begin
+    vnum := pnum * 2;
+    dbms_output.put_line(vnum);
+    
+end procTest; -- 필수는 아니고 선택, 가독성 높이기 위해..
+-- 컴파일 > DB 저장됐다..
+
+begin
+    procTest(100);
+
+end;
+/
+
+create or replace procedure procTest(pwidth number, pheight number)
+is
+    varea number;
+begin
+
+    varea := pwidth * pheight;
+    dbms_output.put_line(varea);
+end procTest;
+/
+
+begin
+    procTest(100, 200);
+end;
+
+
+--
+-- 1. 프로시저의 매개변수 > 길이 표현(X), not null 표현(X)
+-- 2. is(as) 생략 불가능
+create or replace procedure procTest (
+      pname varchar2
+)
+is 
+begin
+dbms_output.put_line('안녕하세요.' || pname || '님');
+end procTest;
+/
+
+begin
+    procTest('홍길동');
+end;
+/
+
+-- default 추가
+
+create or replace procedure procTest(
+    pwidth number, -- default 10 불가, 뒤에서부터 채워나갈 수 있다 ,  전부도 불가
+    pheight number default 10
+)
+is 
+    varea number;
+begin
+    varea := pwidth * pheight;
+    dbms_output.put_line(varea);
+end procTest;
+/
+
+begin
+    -- procTest(10, 20);
+    procTest(10); --width(10) * height(10) default 값
+end;
+
+
+/*
+
+    매개변수 모드
+    - 매개변수가 값을 전달하는 방식
+    - Call by value > 값을 넘기는 동작 (값을 복사해서 넘김, Side effect X)
+    - Call by Reference > 주소를 넘기는 동작 (Side effect O)
+    
+    1. in > 기본
+    2. out 
+    3. in out > X (거의 안씀) 
+
+
+*/
+
+create or replace procedure procTest (
+    pnum1 number,                -- in parameter (기본)
+    pnum2 in number,
+    presult out number,            -- out parameter, 반환값 역할, 주소값 복사됨
+    presult2 out number,
+    presult3 out number
+)
+is
+begin
+    presult := pnum1 + pnum2;
+    presult2 := pnum1 - pnum2;
+    presult3 := pnum1 * pnum2;
+end procTest;
+/
+
+-- 'TO_NUMBER(SQLDEVBIND1Z_1)' 식은 피할당자로 사용될 수 없습니다 (result 절)
+-- out parameter 은 절대 상수를 넣을 수 없다. 변수를 넣어야 한다.
+begin
+    procTest(10, 20, 0);
+end;
+/
+
+
+declare
+    vtemp number;  -- null
+    vtemp2 number;
+    vtemp3 number;
+begin
+    procTest(10, 20, vtemp, vtemp2, vtemp3); 
+
+    dbms_output.put_line(vtemp);
+    dbms_output.put_line(vtemp2);
+    dbms_output.put_line(vtemp3);
+end;
+/
+
+
+/*
+
+    문제
+    1. procTest1
+    - 부서 전달(인자 1개) > in
+    - 해당 부서의 직원 중 급여를 가장 많이 받는 사람의 번호를 반환 > out
+    - 호출 + 번호 출력
+    
+    2. procTest2
+    - 직원 번호 전달 > in
+    - 같은 지역에 사는 직원수? 같은 직위의 직원수? 해당 직원보다 급여를 더 많이 받는 사람 수? > out x 3개
+    - 호출 + 인원수X3개 출력
+
+*/
+
+--1. 
+create or replace procedure procTest1 (
+    pbuseo varchar2,
+    pnum out number
+)
+is
+begin
+    
+    select num into pnum from tblInsa
+        where basicpay = (select max(basicpay) from tblInsa where buseo = pbuseo)
+            and buseo = pbuseo;
+    
+end procTest1;
+/
+
+declare
+    vnum number;
+begin
+    procTest1('개발부', vnum);
+    dbms_output.put_line(vnum);
+end;
+/
+
+
+
+
+--2. 직원 번호 전달 > in
+    - 같은 지역에 사는 직원수? 같은 직위의 직원수? 해당 직원보다 급여를 더 많이 받는 사람 수? > out x 3개
+    
+create or replace procedure procTest2 (
+    pnum in number, -- 직원번호
+    pcnt1 out number,
+    pcnt2 out number,
+    pcnt3 out number
+    )
+is
+begin
+        select count(*) into pcnt1 from tblInsa
+            where city = (select city from tblInsa where num = pnum);
+
+        select count(*) into pcnt2 from tblInsa
+            where jikwi = (select jikwi from tblInsa where num = pnum);    
+
+        select count(*) into pcnt3 from tblInsa
+            where basicpay > (select basicpay from tblInsa where num = pnum);
+            
+end;
+/
+
+declare
+    vcnt1 number;
+    vcnt2 number;
+    vcnt3 number;
+begin
+    procTest2(1001, vcnt1, vcnt2, vcnt3);
+    dbms_output.put_line(vcnt1);
+    dbms_output.put_line(vcnt2);
+    dbms_output.put_line(vcnt3);
+end;
+/
+
+select * from tblStaff;
+select * from tblProject;
+
+-- 직원 퇴사 프로시저, procDeleteStaff
+-- 1. 퇴사 직원 > 담당 프로젝트 유무 확인?
+-- 2. 담당 프로젝트 존재 > 위임
+-- 3. 퇴사 직원 삭제
+
+
+create or replace procedure procDeleteStaff (
+    pseq number,            -- 퇴사할 직원번호
+    pstaff number,          -- 위임받을 직원번호
+    presult out number      -- 성공(1) or 실패(0)
+)
+is
+    vcnt number; --퇴사 직원의 담당 프로젝트 개수
+begin
+    -- 1. 퇴사 직원이 담당 프로젝트가 있는지?
+    select count(*) into vcnt from tblProject where staff_seq = pseq;
+    
+    -- 2. 조건 > 위임 유무 결정
+    if vcnt > 0 then
+        -- 3. 위임
+        update tblProject set staff_seq = pstaff where staff_seq = pseq;
+    else
+        -- 3. 아무것도 안함
+        null; -- 개발자의 의도 표현
+    end if;
+    
+    -- 4. 퇴사
+    delete from tblStaff where seq = pseq;
+    
+    -- 5. 성공
+    presult := 1;
+    
+exception
+
+    -- 5. 실패
+    when others then
+    presult := 0;
+end procDeleteStaff;
+/
+
+
+
+
+declare
+    vresult number;
+begin
+    procDeleteStaff(1, 2, vresult);
+    if vresult = 1 then
+        dbms_output.put_line('퇴사 성공');
+    else
+        dbms_output.put_line('퇴사 실패');
+    end if;
+    
+end;
+/
+
+
+-- 직원 퇴사 프로시저, procDeleteStaff
+-- 1. 퇴사 직원 > 담당 프로젝트 유무 확인?
+-- 2. 담당 프로젝트 존재 > 위임
+-- 3. 퇴사 직원 삭제
+
+-- 2.위임 받을 직원 > 현재 프로젝트를 가장 적게 담당 직원에게 자동으로 위임
+-- 동률 > rownum = 1 
+
+select * from tblStaff;
+select * from tblProject;
+
+
+
+create or replace procedure procDeleteStaff (
+    pseq number,            -- 퇴사할 직원번호
+    presult out number      -- 성공(1) or 실패(0)
+)
+is
+    vcnt number; --퇴사 직원의 담당 프로젝트 개수
+    vseq number; -- 위임받을 직원 번호
+begin
+    --1. 퇴사 직원이 담당 프로젝트가 있는지?
+    select count(*) into vcnt from tblProject where staff_seq = pseq;
+    
+    --2. 조건 > 위임 유무 결정
+    if vcnt > 0 then
+    
+        --2.5 가장 프로젝트를 적게 담당한 직원?
+        select seq into vseq from
+            (select seq, nvl(cnt, 0) as cnt from 
+                    (select staff_seq, count(*) as cnt from tblProject
+                        where staff_seq is not null
+                            group by staff_seq) a
+                                right outer join tblStaff s
+                                    on a.staff_seq = s.seq
+                                        order by cnt asc)
+                                            where rownum = 1;
+    
+        
+        --3. 위임
+        update tblProject set staff_seq = vseq where staff_seq = pseq;        
+        
+    else
+        --3. 아무것도 안함
+        null; --개발자의 의도 표현
+    end if;
+    
+    --4. 퇴사
+    delete from tblStaff where seq = pseq;
+    
+    --5. 성공
+    presult := 1;
+
+exception
+    
+    -- 5. 실패
+    when others then
+        presult := 0;
+
+end procDeleteStaff;
+/
+
+
+
+
+declare
+    vresult number;
+begin
+
+    procDeleteStaff(3, vresult);
+    
+    if vresult = 1 then
+        dbms_output.put_line('퇴사 성공');
+    else
+        dbms_output.put_line('퇴사 실패');
+    end if;
+    
+end;
+/
+
+
+
+/* 
+    저장 프로시저
+    1. 저장 프로시저
+    2. 저장 함수
+
+    저장 함수, Stored Function > 함수(function)
+    - 저장 프로시저와 동일
+    - 반환값이 반드시 존재!!
+    
+
+*/
+
+-- num1 + num2 > 합 반환
+
+-- 프로시저
+create or replace procedure procSum (
+    pnum1 in number,
+    pnum2 in number,
+    presult out number
+)
+is
+begin
+    presult := pnum1 + pnum2;
+end procSum;
+/
+
+
+-- 함수
+-- 자바 public int sum(n1, n2)
+
+
+create or replace function fnSum(pnum1 in number, pnum2 in number
+) return number --return 타입
+is
+begin
+    return pnum1 + pnum2;
+end fnSum;
+/
+
+
+
+declare
+    vresult number;
+begin
+
+    procSum(10, 20, vresult);
+    dbms_output.put_line(vresult);
+    
+    vresult := fnSum(30, 40); == PL/SQL에서 잘 사용 안한다 > ANSI-SQL에서 사용한다
+    dbms_output.put_line(vresult);
+end;
+/
+
+
+select
+    name, buseo, jikwi, fnGender(ssn) 
+from tblInsa;
+
+
+
+create or replace function fnGender(pssn varchar2) return varchar2
+is
+begin
+    return case
+                when substr(pssn, 8, 1) = '1' then '남자'
+                when substr(pssn, 8, 2) = '2' then '여자'
+    end;
+
+end fnGender;
+/
+
+
+-- 프로시저 : 일련의 흐름을 가지는 명령어 집합 = 모듈
+-- 함수 : ANSI-SQL의 반복되는 업무
+
+/*
+    프로시저
+    1. 프로시저
+    2. 함수
+    3. 트리거
+
+    트리거, Trigger
+    - 프로시저의 한종류
+    - 개발자의 호출이 아닌, 미리 지정한 특정 사건이 발생하면 시스템이 자동으로 호출하는 프로시저
+    - 에약(사건) > 감시 > 사건 발생 > 프로시저 호출
+
+    - 특정 테이블 지정 > 지정 테이블을 오라클이 감시
+        > 사건 발생(insert / update / delete 데이터 상태에 대한 변화) > 미리 준비한 프로시저 호출
+        
+    
+    트리거 구문
+    
+    create or replace trigger 트리거명
+        before|after
+        insert|update|delete
+        on 테이블명
+        [for each row]   ----------여기까지 사건
+    declare                     ---- 사건이 발생하면 여기서부터 호출
+        선언부;
+    begin
+        구현부;
+    exception
+        에외처리부;
+    end;
+
+*/
+
+
+-- tblInsa > 직원 삭제
+create or replace trigger trgInsa
+    before      --삭제가 발생하기 직전에 구현부를 실행해라!!
+    delete      --삭제가 발생하는지 검사?
+    on tblInsa  --tblInsa 테이블에서
+begin
+
+    dbms_output.put_line(to_char(sysdate, 'hh24:mi:ss') || ' 트리거가 실행되었습니다.');
+    
+    -- 목요일에는 퇴사가 불가능
+    if to_char(sysdate, 'dy') = '목' then
+    
+        --강제로 에러 발생
+        --: throw new Exception()
+        --: -20000 ~ -29999
+        raise_application_error(-20001, '목요일에는 퇴사가 불가능합니다.');
+    
+    end if;
+    
+end trgInsa;
+/
+
+select * from tblInsa;
+
+delete from tblInsa where num = 1006;
+
+delete from tblBonus;
+
+
+-- *** 오라클 사용자가 생성한 모든 식별자(테이블명, 컬럼명 등)를
+-- 저장할 때 대문자로 저장한다.
+
+-- 트리거 확인
+select trigger_name, table_name, status from user_triggers where table_name = 'TBLINSA';
+select * from user_triggers where table_name = 'tblInsa';
+
+-- 트리거 중지
+alter trigger trgInsa disable; --DISABLED
+
+-- 트리거 작동
+alter trigger trgInsa enable;
+
+
+-- 로그 기록
+-- tblDiary > 감시 > 사건 > 로그
+
+create table tblLogDiary (
+    seq number primary key,                 --PK
+    message varchar2(1000) not null,        --메시지
+    regdate date default sysdate not null   --시간
+);
+
+create sequence seqLogDiary;
+
+-- 하나의 트리거로 동시에 사건을 감시 가능
+create or replace trigger trgDiary
+    after
+    insert or update or delete
+    on tblDiary
+declare
+    vmessage varchar2(1000);
+begin
+
+    -- dbms_output.put_line('trgDiary 호출됨');
+    
+    if inserting then
+    -- dbms_output.put_line('trgDiary 호출됨 - 삽입'); 
+        vmessage := '새로운 항목이 추가되었습니다.';
+    elsif updating then
+    -- dbms_output.put_line('trgDiary 호출됨 - 수정');
+        vmessage := '기존 항목이 수정되었습니다.';
+    elsif deleting then
+    -- dbms_output.put_line('trgDiary 호출됨 - 삭제'); 
+        vmessage := '기존 항목이 삭제되었습니다.';
+    end if;
+    
+    insert into tblLogDiary values (seqLogDiary.nextVal, vmessage, default);
+
+end trgDiary;
+/
+
+
+insert into tblDiary values (11, '눈이 많이 왔습니다.', '눈', sysdate);
+
+update tblDiary set subject = '함박눈이 많이 왔습니다.' where seq = 11;
+
+delete from tblDiary where seq = 11;
+
+select * from tblDiary;
+select * from tblLogDiary;
+
+alter trigger trgDiary disable;
+
+/*
+
+    [for each row]
+    1. 생략
+        - 문장(Query) 단위 트리거, Table Level Trigger
+        
+    2. 사용
+        - 행(Record) 단위 트리거
+
+
+*/
+
+create or replace trigger trgMen
+    after
+    delete
+    on tblMen
+    for each row
+-- 변수 안만들거니까 declare 생략
+begin
+    dbms_output.put_line('레코드를 삭제했습니다' || :old.name || ',' || :old.age); -- for each row 
+end trgMen;
+/
+
+select * from tblMen; -- 조세호 삭제..
+
+delete from tblMen where name = '조세호'; -- 멘트 1
+delete from tblMen; -- 멘트1
+-- 적용받는 행의 갯수와 상관없이 멘트는 한번만 실행 -> 문장 단위 트리거
+
+rollback;
+
+delete from tblMen where name = '조세호'; -- 멘트 1
+delete from tblMen; --
+
+
+
+create or replace trigger trgMen
+    after -- before 도 가능 , 매개변수가 넘어오기 때문에,,,, 
+    update -- insert 과거가 없고 새로 탄생했기 때문에 new만 참조. old는 사용X
+    -- delete 는  new X, old O
+    on tblMen
+    for each row
+begin
+dbms_output.put_line('레코드를 수정했습니다. >' || :old.name); -- update 발생 전
+dbms_output.put_line('수정 전 나이 >' || :old.age);
+dbms_output.put_line('수정 후 나이 >' || :new.age); -- update 발생 후
+dbms_output.put_line('전 여친 >' || :old.couple); 
+dbms_output.put_line('현 여친 >' || :new.couple);
+
+end trgMen;
+/
+
+
+update tblMen set age = age + 1 where name = '홍길동';
+update tblMen set couple = '무명씨' where name = '홍길동';
+
+insert into tblMen values ('강호동', 30, 180, 90, '호호호');
+
+delete from tblMen where name = '강호동';
+
+select * from tblMen;
+
+
+-- 정리
+-- insert > :old(X), :new(O)
+-- update > :old(O), :new(O)
+-- delete > :old(O), :new(X)
+
+
+-- 퇴사 > 프로젝트 위임
+
+select * from tblStaff;
+select * from tblProject;
+
+delete from tblStaff; -- 데이터 삭제
+truncate table tblStaff; -- 데이터 삭제
+
+delete from tblProject; -- delete
+truncate table tblProject; -- Shift + delete, rollback 불가
+
+drop table tblStaff; -- 테이블 삭제
+
+commit;
+rollback;
+
+
+
+
+
+create or replace trigger trgDeleteStaff
+    before                  -- 3. 하기 전에
+    delete                  -- 2. 퇴사
+    on tblStaff             -- 1. 직원 테이블에서
+    for each row            -- 4. 해당 직원 정보
+begin
+
+    --5. 사용 > 위임
+    update tblProject set
+        staff_seq = 3
+            where staff_seq = :old.seq; -- 퇴사하는 직원 번호
+    
+end trgDeleteStaff;
+/
+
+select * from tblStaff;
+
+delete from tblStaff where seq = 1;
