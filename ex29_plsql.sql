@@ -1708,3 +1708,138 @@ end trgDeleteStaff;
 select * from tblStaff;
 
 delete from tblStaff where seq = 1;
+
+
+
+
+-------------------0223
+
+-- 회원 테이블, 게시판 테이블
+-- 포인트 정책
+-- 1. 글 작성 > 포인트 + 100
+-- 2. 글 삭제 > 포인트 - 50
+
+create table tblUser (
+    id varchar2(30) not null,
+    point number not null
+
+);
+
+alter table tblUser
+    add constraint tbluser_id_pk primary key(id);
+
+create table tblBoard (
+    seq number not null,
+    subject varchar2(2000) not null,
+    id varchar2(30) not null
+);
+
+alter table tblBoard
+    add constraint tblboard_seq_pk primary key(seq);
+    
+alter table tblBoard
+    add constraint tblboard_id_fk foreign key(id) references tblUser(id);
+    
+create sequence seqBoard;
+
+
+insert into tblUser values ('hong', 1000);
+
+-- 1. 글을 쓴다.(삭제한다.)
+-- 2. 포인트를 누적(차감)한다.
+
+-- Case 1. Hard Coding
+-- 개발자 직접 제어
+-- 실수 > 일부 업무 누락
+
+-- 1.1 글쓰기
+insert into tblBoard values (seqBoard.nextVal, '게시판입니다', 'hong');
+
+-- 1.2 포인트 누적하기
+update tblUser set point = point + 100 where id = 'hong';
+
+-- 1.3 글삭제하기
+delete from tblBoard where seq = 1;
+
+-- 1.4 포인트 차감하기
+update tblUser set point = point - 50 where id = 'hong';
+
+-- 결과 확인
+select * from tblBoard;
+select * from tblUser;
+
+
+-- Case2. 프로시저(메서드)
+
+-- 1. 글쓰기
+create or replace procedure procAddBoard (
+    pid varchar2,  -- 매개변수로 받는다
+    psubject varchar2
+)
+is
+begin
+
+    insert into tblBoard values (seqBoard.nextVal, psubject, pid);
+    
+    update tblUser set point = point + 100 where id = pid;
+
+end procAddBoard;
+/
+
+-- 2. 삭제하기
+create or replace procedure procDeleteBoard(
+    pseq number -- 글번호를 알아내서 게시물 삭제
+)
+is
+    vid tblUser.id%type;
+begin
+    -- 삭제하기 전에 지우려는 글번호의 작성자 아이디 알아내기
+    select id into vid from tblBoard where seq = pseq;
+    
+    delete from tblBoard where seq = pseq;
+    update tblUser set point = point - 50 where id = vid;
+    
+    
+end procDeleteBoard;
+
+-- 실제로 적용
+begin
+   procAddBoard('hong', '안녕하세요');
+end;
+/
+
+begin
+   procDeleteBoard(2);
+end;
+/
+
+-- SQL Developer > 그외도구일 경우, SQL*PLUS desc 테이블명; show user; set serveroutput on 명령어 동작 안함 
+
+
+-- Case 3. 트리거
+create or replace trigger trgBoard
+    after
+    insert or delete
+    on tblBoard
+    for each row -- 누가 쓰고 누가 삭제했는지 관련 정보가 필요하므로 사용! 
+begin
+-- 글은 외부에서 이미 썼기 때문에 트리거가 발생한 것이므로, 트리거는 포인트작업만 진행
+    if inserting then
+        update tblUser set point = point + 100 where id = :new.id; 
+        -- new, old는 방금 사건이 일어난 Board table의 레코드를 말한다 
+    elsif deleting then
+        update tblUser set point = point - 50 where id = :old.id;
+        end if;
+
+end trgBoard;
+/
+
+-- 글쓰기는 ANSI 에서 
+insert into tblBoard values (seqBoard.nextVal, '금요일입니다', 'hong');
+
+delete from tblBoard where seq = 3;
+
+select * from tblBoard;
+select * from tblUser;
+
+-- 포인트가 고정이 아니라면? 프로시저에서는 매개변수로 사용하면 되지만, 트리거에서는 고정작업밖에 안되므로 변화된값을 확보할 방법이 없다
