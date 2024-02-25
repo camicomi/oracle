@@ -57,6 +57,7 @@ CREATE TABLE tableNetizenReview (
     delete from tableNetizenReview where seq = 1;
 
 
+-- 1. 웡카
 
 DECLARE
     v_reviewcontent CLOB;
@@ -195,6 +196,7 @@ BEGIN
 END;
 /
 
+-- 6. 도그데이즈
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -205,6 +207,8 @@ BEGIN
 END;
 /
 
+-- 9. 아가일
+
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -214,6 +218,8 @@ BEGIN
     VALUES (6, 9, 7, 'hwachul92', v_reviewcontent);
 END;
 /
+
+-- 12.  추락의 해부
 
 DECLARE
     v_reviewcontent CLOB;
@@ -335,6 +341,8 @@ END;
 /
 
 
+-- 13. DMZ 동물 특공대
+
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -354,6 +362,8 @@ BEGIN
     VALUES (10, 13, 10, '3334330218', v_reviewcontent);
 END;
 /
+
+-- 16. 괴물 
 
 DECLARE
     v_reviewcontent CLOB;
@@ -547,6 +557,8 @@ BEGIN
 END;
 /
 
+-- 18. 이프온리 
+
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -597,6 +609,8 @@ BEGIN
 END;
 /
 
+-- 19. 중경삼림
+
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -646,6 +660,8 @@ BEGIN
     VALUES (25, 19, 9, 'songijungin', v_reviewcontent);
 END;
 /
+
+-- 20. 서울의 봄
 
 DECLARE
     v_reviewcontent CLOB;
@@ -869,6 +885,8 @@ BEGIN
 END;
 /
 
+-- 21. 오늘 밤, 세계에서 이 사랑이 사라진다 해도
+
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -901,6 +919,8 @@ BEGIN
 END;
 /
 
+
+-- 22. 화양연화
 
 DECLARE
     v_reviewcontent CLOB;
@@ -946,6 +966,9 @@ BEGIN
     INSERT INTO tableNetizenReview (seq, rseq, reviewrate, userid, reviewcontent)
     VALUES (37, 22, 9, 'cheerupup', v_reviewcontent);
 END;
+/
+
+-- 23. 플랜75
 
 DECLARE
     v_reviewcontent CLOB;
@@ -956,6 +979,8 @@ BEGIN
     VALUES (38, 23, 6, '21457255', v_reviewcontent);
 END;
 /
+
+-- 26. 위시
 
 DECLARE
     v_reviewcontent CLOB;
@@ -985,6 +1010,8 @@ BEGIN
     VALUES (40, 26, 6, 'filmone1', v_reviewcontent);
 END;
 /
+
+-- 28. 해피투게더 
 
 DECLARE
     v_reviewcontent CLOB;
@@ -1041,6 +1068,8 @@ BEGIN
 END;
 /
 
+-- 29. 길위에 김대중
+
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -1061,6 +1090,7 @@ BEGIN
 END;
 /
 
+-- 31. 외계인2부
 
 DECLARE
     v_reviewcontent CLOB;
@@ -1171,6 +1201,7 @@ BEGIN
 END;
 /
 
+-- 32. 블레이드 러너 2049
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -1221,6 +1252,8 @@ BEGIN
 END;
 /
 
+-- 33. 인투더월드
+
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -1238,6 +1271,8 @@ BEGIN
     VALUES (56, 33, 7, 'filmone1', v_reviewcontent);
 END;
 /
+
+-- 35. 나의 올드 오크
 
 DECLARE
     v_reviewcontent CLOB;
@@ -1413,6 +1448,7 @@ BEGIN
 END;
 /
 
+-- 36. 더 퍼스트 슬램덩크
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -1527,6 +1563,7 @@ BEGIN
 END;
 /
 
+-- 39. 오키쿠와 세계
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -1548,6 +1585,8 @@ BEGIN
     VALUES (63, 39, 7, 'filmone1', v_reviewcontent);
 END;
 /
+
+-- 42. 오펜하이머 
 
 DECLARE
     v_reviewcontent CLOB;
@@ -1611,6 +1650,8 @@ BEGIN
 END;
 /
 
+-- 44. 전쟁과 평화
+
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -1641,6 +1682,7 @@ BEGIN
 END;
 /
 
+-- 45. 엔드 오브 에반리온
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -1692,6 +1734,7 @@ BEGIN
 END;
 /
 
+-- 46. 비욘드 유토피아
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -1714,6 +1757,7 @@ p.s 김성은 목사와 탈북 가족이 무대 인사를 왔는데 김성은 �
 END;
 /
 
+-- 47. 예수는 역사다
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
@@ -1724,6 +1768,7 @@ BEGIN
 END;
 /
 
+-- 49. 노량: 죽음의 바다
 DECLARE
     v_reviewcontent CLOB;
 BEGIN
