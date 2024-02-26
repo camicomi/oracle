@@ -1843,3 +1843,54 @@ select * from tblBoard;
 select * from tblUser;
 
 -- 포인트가 고정이 아니라면? 프로시저에서는 매개변수로 사용하면 되지만, 트리거에서는 고정작업밖에 안되므로 변화된값을 확보할 방법이 없다
+
+
+------------0226
+set serveroutput on;
+-- 프로시저 out 매개변수
+-- 1. 단일 레코드(단일 컬럼)
+-- 2. 레코드 전체
+-- 3. 다중 레코드(커서)
+-- 커서 자체를 리턴할 수 있다 
+create or replace procedure procTest (
+    pcnt out number,
+    pvrow out tblInsa%rowtype,
+    pcursor out sys_refcursor -- select > begin에다
+)
+is
+begin
+
+    -- 1. 1행 1열
+    select count(*) into pcnt from tblInsa;
+    
+    -- 2. 1행 N열
+    select * into pvrow from tblInsa where num = 1010;
+    
+    -- 3. N행 N열 ***** 어떻게 호출하는지 반드시 기억
+    open pcursor
+    for
+    select * from tblInsa;
+    
+end procTest;
+/
+
+-- 호출
+declare
+    vcnt number;
+    vrow tblInsa%rowtype; -- 행참조변수
+    vcursor sys_refcursor;
+begin
+    procTest(vcnt, vrow, vcursor);
+    dbms_output.put_line(vcnt);
+    dbms_output.put_line(vrow.name || ',' || vrow.buseo);
+    
+    loop
+        fetch vcursor into vrow; -- fetch vcursor into 행참조변수
+        exit when vcursor%notfound;
+        
+        dbms_output.put_line(vrow.name || ', ' || vrow.buseo); -- 커서 리턴 구문
+        
+    end loop;
+    
+end;
+/
