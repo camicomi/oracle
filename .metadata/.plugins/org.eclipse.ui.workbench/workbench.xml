@@ -29,6 +29,8 @@
 <part id="1"/>
 <part id="2"/>
 <part id="3"/>
+<part id="4"/>
+<part id="5"/>
 </presentation>
 </folder>
 </info>
@@ -42,8 +44,14 @@
 <editor id="com.tomato.exerd.editor.DiagramEditor" name="hr.exerd" partName="hr.exerd" path="C:/class/code/oracle/eXERD-Samples/hr.exerd" title="hr.exerd" tooltip="eXERD-Samples/hr.exerd" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/eXERD-Samples/hr.exerd"/>
 </editor>
-<editor activePart="true" focus="true" id="com.tomato.exerd.editor.DiagramEditor" name="비디오.exerd" partName="비디오.exerd" path="C:/class/code/oracle/eXERD-Samples/비디오.exerd" title="비디오.exerd" tooltip="eXERD-Samples/비디오.exerd" workbook="DefaultEditorWorkbook">
+<editor id="com.tomato.exerd.editor.DiagramEditor" name="비디오.exerd" partName="비디오.exerd" path="C:/class/code/oracle/eXERD-Samples/비디오.exerd" title="비디오.exerd" tooltip="eXERD-Samples/비디오.exerd" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/eXERD-Samples/비디오.exerd"/>
+</editor>
+<editor id="com.tomato.exerd.editor.DiagramEditor" name="testt.exerd" partName="testt.exerd" title="testt.exerd" tooltip="C:\Users\user\Downloads\testt.exerd" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" uri="file:/C:/Users/user/Downloads/testt.exerd"/>
+</editor>
+<editor activePart="true" focus="true" id="com.tomato.exerd.editor.DiagramEditor" name="커뮤니티.exerd" partName="커뮤니티.exerd" path="C:/class/code/oracle/eXERD-Samples/커뮤니티.exerd" title="커뮤니티.exerd" tooltip="eXERD-Samples/커뮤니티.exerd" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/eXERD-Samples/커뮤니티.exerd"/>
 </editor>
 </editors>
 <views>
@@ -177,6 +185,8 @@
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" path="/eXERD-Samples/hr.exerd"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" path="/eXERD-Samples/조인.exerd"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" path="/eXERD-Samples/비디오.exerd"/>
+<editor factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" uri="file:/C:/Users/user/Downloads/testt.exerd"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" path="/eXERD-Samples/커뮤니티.exerd"/>
 </editors>
 <item historyLabel="pos.exerd" index="0"/>
 <item historyLabel="조인.exerd" index="1"/>
@@ -184,7 +194,9 @@
 <item historyLabel="조인.exerd" index="1"/>
 <item historyLabel="hr.exerd" index="2"/>
 <item historyLabel="조인.exerd" index="3"/>
-<item active="true" historyLabel="비디오.exerd" index="4"/>
+<item historyLabel="비디오.exerd" index="4"/>
+<item historyLabel="testt.exerd" index="5"/>
+<item active="true" historyLabel="커뮤니티.exerd" index="6"/>
 </navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>
 </page>
@@ -202,6 +214,12 @@
 </trimLayout>
 </window>
 <mruList>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" name="커뮤니티.exerd" tooltip="eXERD-Samples/커뮤니티.exerd">
+<persistable path="/eXERD-Samples/커뮤니티.exerd"/>
+</file>
+<file factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" name="testt.exerd" tooltip="C:\Users\user\Downloads\testt.exerd">
+<persistable uri="file:/C:/Users/user/Downloads/testt.exerd"/>
+</file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.tomato.exerd.editor.DiagramEditor" name="비디오.exerd" tooltip="eXERD-Samples/비디오.exerd">
 <persistable path="/eXERD-Samples/비디오.exerd"/>
 </file>
